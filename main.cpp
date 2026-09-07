@@ -1084,6 +1084,10 @@ int main() {
             "text/html");
     });
 
-    svr.listen("0.0.0.0", 8080);
-    return 0;
+    std::cout << "Starting HTTP server on http://localhost:8080 ..." << std::endl;
+
+if (!svr.listen("0.0.0.0", 8080)) {
+    std::cerr << "ERROR: Failed to bind/listen on port 8080." << std::endl;
+    return 1;
+}
 }
