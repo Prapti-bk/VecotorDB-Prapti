@@ -765,6 +765,13 @@ void loadDemo(VectorDB& db) {
 
 int main() {
     VectorDB   db(DIMS);
+    // Railway (and most cloud platforms) inject PORT env variable
+    int port = 8080;
+    const char* envPort = std::getenv("PORT");
+    if (envPort) {
+        try { port = std::stoi(envPort); } catch (...) {}
+    }
+
     DocumentDB docDB;
     OllamaClient ollama;
 
@@ -773,7 +780,7 @@ int main() {
     // Check Ollama at startup (non-fatal)
     bool ollamaUp = ollama.isAvailable();
     std::cout << "=== VectorDB Engine ===" << std::endl;
-    std::cout << "http://localhost:8080" << std::endl;
+    std::cout << "Port: " << port << std::endl;
     std::cout << db.size() << " demo vectors | " << DIMS << " dims | HNSW+KD-Tree+BruteForce" << std::endl;
     std::cout << "Ollama: " << (ollamaUp ? "ONLINE" : "OFFLINE (install from ollama.com)") << std::endl;
     if (ollamaUp) std::cout << "  embed model: " << ollama.embedModel
@@ -1084,10 +1091,10 @@ int main() {
             "text/html");
     });
 
-    std::cout << "Starting HTTP server on http://localhost:8080 ..." << std::endl;
+    std::cout << "Starting HTTP server on port " << port << " ..." << std::endl;
 
-if (!svr.listen("0.0.0.0", 8080)) {
-    std::cerr << "ERROR: Failed to bind/listen on port 8080." << std::endl;
-    return 1;
-}
+    if (!svr.listen("0.0.0.0", port)) {
+        std::cerr << "ERROR: Failed to bind/listen on port " << port << std::endl;
+        return 1;
+    }
 }
