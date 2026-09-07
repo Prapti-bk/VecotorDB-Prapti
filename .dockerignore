@@ -1,0 +1,20 @@
+# Binaries
+*.exe
+*.o
+
+# Temp/build files
+build_stderr.txt
+build_stdout.txt
+compile_errors.txt
+compile_out.txt
+err.txt
+err2.txt
+out.txt
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode/
+.idea/
