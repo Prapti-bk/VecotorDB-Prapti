@@ -605,8 +605,10 @@ public:
         : host(h), port(p) {}
 
     bool isAvailable() {
+        // Short timeout — Ollama won't be present in cloud deployments
         httplib::Client cli(host, port);
-        cli.set_connection_timeout(2, 0);
+        cli.set_connection_timeout(1, 0);
+        cli.set_read_timeout(1, 0);
         auto res = cli.Get("/api/tags");
         return res && res->status == 200;
     }
@@ -1083,12 +1085,19 @@ int main() {
 
     // Serve index.html
     svr.Get("/", [](const httplib::Request&, httplib::Response& res) {
-        std::ifstream f("index.html");
-        if (!f.is_open()) { res.status = 404; return; }
-        res.set_content(
-            std::string(std::istreambuf_iterator<char>(f),
-                        std::istreambuf_iterator<char>()),
-            "text/html");
+        // Try multiple locations — works both locally and in Docker (/app)
+        for (const auto& path : {"index.html", "/app/index.html"}) {
+            std::ifstream f(path);
+            if (f.is_open()) {
+                res.set_content(
+                    std::string(std::istreambuf_iterator<char>(f),
+                                std::istreambuf_iterator<char>()),
+                    "text/html");
+                return;
+            }
+        }
+        res.status = 404;
+        res.set_content("index.html not found", "text/plain");
     });
 
     std::cout << "Starting HTTP server on port " << port << " ..." << std::endl;

@@ -11,7 +11,8 @@ COPY httplib.h .
 RUN g++ -std=c++17 -O2 -o vectordb main.cpp -lpthread
 
 # ── Stage 2: Run ───────────────────────────────────────────────────────
-FROM debian:bookworm-slim
+# Use the same base as builder so libstdc++ versions match
+FROM gcc:13-bookworm
 
 WORKDIR /app
 
